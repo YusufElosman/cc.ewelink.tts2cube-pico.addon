@@ -5,3 +5,5 @@ node_modules/
 /*.tgz
 /*.zip
 /package-lock.json
+
+.history

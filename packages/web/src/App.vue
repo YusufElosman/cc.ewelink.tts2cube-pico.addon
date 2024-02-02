@@ -3,6 +3,9 @@
     <a-config-provider :locale="antdLocale">
         <RouterView />
     </a-config-provider>
+    <div class="add-on-version">
+        <span>{{ version ? `v${version}` : '' }}</span>
+    </div>
 </template>
 
 <script lang="ts" setup>
@@ -15,6 +18,9 @@ import enUS from 'ant-design-vue/es/locale/en_US';
 
 import { useLanguageStore } from '@/stores/language';
 import i18n from '@/i18n';
+
+/** 版本(从.env文件获取) */
+const version = import.meta.env.VITE_VERSION;
 
 // 初始化页面语言
 const initLanguage = () => {
@@ -56,3 +62,15 @@ if (language.value === 'zh-cn') {
     antdLocale.value = enUS;
 }
 </script>
+
+<style scoped lang="scss">
+.add-on-version {
+    position: absolute;
+    bottom: 20px;
+    right: 24px;
+    span {
+        font-size: 14px;
+        color: #a1a1a1;
+    }
+}
+</style>
