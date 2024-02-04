@@ -65,7 +65,7 @@ if (language.value === 'zh-cn') {
 
 <style scoped lang="scss">
 .add-on-version {
-    position: absolute;
+    position: fixed;
     bottom: 20px;
     right: 24px;
     span {
