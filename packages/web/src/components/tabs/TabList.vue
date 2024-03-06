@@ -3,12 +3,7 @@
     <div class="tab-list">
         <DescTitle :header="$t('audio_file')" />
         <div class="table">
-            <a-table
-                :data-source="tableData"
-                :columns="columns"
-                :loading="tableLoading"
-                size="middle"
-            >
+            <a-table :data-source="tableData" :columns="columns" :loading="tableLoading" size="middle">
                 <template #bodyCell="{ column, text, record }">
                     <!-- 文件名称栏 -->
                     <template v-if="column.dataIndex === 'filename'">
@@ -30,8 +25,8 @@
                     <!-- 操作栏 -->
                     <template v-else-if="column.dataIndex === 'operation'">
                         <PlayAudioBtn class="operation-icon" :audio-url="record.url" />
-                        <img class="operation-icon" @click="() => downloadAudio(record.id)" src="@/assets/download.png" alt="download icon">
-                        <img class="operation-icon" @click="() => openModal(record.id)" src="@/assets/delete.png" alt="delete icon">
+                        <img class="operation-icon" @click="() => downloadAudio(record.id)" src="@/assets/download.png" alt="download icon" />
+                        <img class="operation-icon" @click="() => openModal(record.id)" src="@/assets/delete.png" alt="delete icon" />
                     </template>
                 </template>
             </a-table>
@@ -63,21 +58,12 @@
 import { ref, onMounted, reactive } from 'vue';
 import { saveAs } from 'file-saver';
 import dayjs from 'dayjs';
-import {
-    CheckOutlined,
-    EditOutlined,
-    ExclamationCircleFilled
-} from '@ant-design/icons-vue';
+import { CheckOutlined, EditOutlined, ExclamationCircleFilled } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import _ from 'lodash';
 import DescTitle from '@/components/DescTitle.vue';
 import PlayAudioBtn from '@/components/PlayAudioBtn.vue';
-import {
-    getAudioList,
-    updateAudioItem,
-    removeAudioItem,
-    SERVER_PORT
-} from '@/api';
+import { getAudioList, updateAudioItem, removeAudioItem, SERVER_PORT } from '@/api';
 import i18n from '@/i18n';
 
 type TableDataItem = {
@@ -99,7 +85,7 @@ const columns = [
     {
         title: i18n.global.t('file_name'),
         dataIndex: 'filename',
-        width: 180
+        width: 180,
     },
     {
         title: i18n.global.t('text'),
@@ -110,18 +96,18 @@ const columns = [
         title: i18n.global.t('configuration'),
         dataIndex: 'config',
         ellipsis: true,
-        width: 145
+        width: 145,
     },
     {
         title: i18n.global.t('created_time'),
         dataIndex: 'time',
-        width: 110
+        width: 110,
     },
     {
         title: i18n.global.t('operation'),
         dataIndex: 'operation',
-        width: 140
-    }
+        width: 140,
+    },
 ];
 
 // 表格数据
@@ -144,13 +130,26 @@ const parseLang = (lang: string) => {
     let result = '';
 
     switch (lang) {
-        case 'en-US': result = i18n.global.t('american_english');   break;
-        case 'en-GB': result = i18n.global.t('british_english');    break;
-        case 'de-DE': result = i18n.global.t('german_germany');     break;
-        case 'es-ES': result = i18n.global.t('european_spanish');   break;
-        case 'fr-FR': result = i18n.global.t('french_france');      break;
-        case 'it-IT': result = i18n.global.t('italian_italy');      break;
-        default: break;
+        case 'en-US':
+            result = i18n.global.t('american_english');
+            break;
+        case 'en-GB':
+            result = i18n.global.t('british_english');
+            break;
+        case 'de-DE':
+            result = i18n.global.t('german_germany');
+            break;
+        case 'es-ES':
+            result = i18n.global.t('european_spanish');
+            break;
+        case 'fr-FR':
+            result = i18n.global.t('french_france');
+            break;
+        case 'it-IT':
+            result = i18n.global.t('italian_italy');
+            break;
+        default:
+            break;
     }
 
     return result;
@@ -249,7 +248,7 @@ const removeAudio = async () => {
     } catch (err: any) {
         const errContent = `${err.name}: ${err.message}`;
         message.error(errContent);
-        console.error(`removeAudio: ${errContent}`)
+        console.error(`removeAudio: ${errContent}`);
     }
     tableLoading.value = false;
     closeModal();
@@ -281,48 +280,52 @@ onMounted(async () => {
         .operation-icon:hover {
             cursor: pointer;
         }
+
+        :deep(.ant-table-pagination.ant-pagination) {
+            margin: 55px 0;
+        }
     }
 }
 
 .editable-cell {
-  position: relative;
-  .editable-cell-input-wrapper,
-  .editable-cell-text-wrapper {
-    padding-right: 24px;
-  }
+    position: relative;
+    .editable-cell-input-wrapper,
+    .editable-cell-text-wrapper {
+        padding-right: 24px;
+    }
 
-  .editable-cell-text-wrapper {
-    padding: 5px 24px 0 0;
-  }
+    .editable-cell-text-wrapper {
+        padding: 5px 24px 0 0;
+    }
 
-  .editable-cell-icon,
-  .editable-cell-icon-check {
-    position: absolute;
-    right: 0;
-    width: 20px;
-    cursor: pointer;
-  }
+    .editable-cell-icon,
+    .editable-cell-icon-check {
+        position: absolute;
+        right: 0;
+        width: 20px;
+        cursor: pointer;
+    }
 
-  .editable-cell-icon {
-    margin-top: 4px;
-    display: none;
-  }
+    .editable-cell-icon {
+        margin-top: 4px;
+        display: none;
+    }
 
-  .editable-cell-icon-check {
-    line-height: 28px;
-  }
+    .editable-cell-icon-check {
+        line-height: 28px;
+    }
 
-  .editable-cell-icon:hover,
-  .editable-cell-icon-check:hover {
-    color: #108ee9;
-  }
+    .editable-cell-icon:hover,
+    .editable-cell-icon-check:hover {
+        color: #108ee9;
+    }
 
-  .editable-add-btn {
-    margin-bottom: 8px;
-  }
+    .editable-add-btn {
+        margin-bottom: 8px;
+    }
 }
 .editable-cell:hover .editable-cell-icon {
-  display: inline-block;
+    display: inline-block;
 }
 
 .editable-cell-text-wrapper span {
@@ -338,7 +341,6 @@ onMounted(async () => {
 /* -------------------------------->8-------------------------------- */
 // 自定义弹框样式
 .Modal {
-
     .Modal-title-wrap {
         display: flex;
         justify-content: center;
@@ -350,7 +352,7 @@ onMounted(async () => {
         }
 
         .Modal-title-icon {
-            color: #F2CB51;
+            color: #f2cb51;
             font-size: 76px;
             margin-top: 24px;
         }
@@ -360,8 +362,6 @@ onMounted(async () => {
             font-size: 76px;
         }
     }
-
-
 
     .Modal-content {
         font-size: 16px;
@@ -408,9 +408,8 @@ onMounted(async () => {
 
     .ant-modal-footer {
         border-top: none;
-        padding:0 16px 20px;
+        padding: 0 16px 20px;
     }
-
 
     .ant-modal-body::-webkit-scrollbar {
         /*滚动条整体样式*/
@@ -439,35 +438,33 @@ onMounted(async () => {
 }
 
 //docker固件升级的弹窗样式
-.update-comp-modal{
-    .ant-modal-content{
+.update-comp-modal {
+    .ant-modal-content {
         border-radius: 4px;
         overflow: hidden;
     }
-   .ant-modal-body{
-        padding: 0;
-    }
-
-    .ant-modal-header{
-        padding: 0;
-    }
-
-    .ant-modal-footer{
-        padding: 0;
-    }
-
-
-}
-
-.addModal{
     .ant-modal-body {
-        max-height: 535px!important;
+        padding: 0;
+    }
+
+    .ant-modal-header {
+        padding: 0;
+    }
+
+    .ant-modal-footer {
+        padding: 0;
     }
 }
 
-.add-volume-modal{
+.addModal {
     .ant-modal-body {
-        padding:0 24px!important;
+        max-height: 535px !important;
+    }
+}
+
+.add-volume-modal {
+    .ant-modal-body {
+        padding: 0 24px !important;
     }
 }
 </style>
