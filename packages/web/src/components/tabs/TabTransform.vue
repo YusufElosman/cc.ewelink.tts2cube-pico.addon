@@ -9,18 +9,16 @@
                 <h3>{{ $t('upload_audio_file') || 'Upload Audio File (MP3/WAV)' }}</h3>
             </div>
             <div class="upload-content">
-                <a-upload
-                    :before-upload="handleBeforeUpload"
-                    :show-upload-list="false"
-                    accept=".mp3,.wav"
-                >
-                    <a-button type="default">
-                        <template #icon>
-                            <UploadOutlined />
-                        </template>
-                        {{ $t('select_audio_file') || 'Select Audio File' }}
-                    </a-button>
-                </a-upload>
+                <input
+                    type="file"
+                    ref="fileInput"
+                    accept=".mp3,.wav,audio/mpeg,audio/wav"
+                    @change="handleFileChange"
+                    style="display: none;"
+                />
+                <a-button type="default" @click="selectFile">
+                    {{ $t('select_audio_file') || 'Select Audio File' }}
+                </a-button>
                 <span v-if="selectedFile" class="file-name">{{ selectedFile.name }}</span>
                 <a-button
                     v-if="selectedFile"
@@ -129,7 +127,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
-import { UploadOutlined } from '@ant-design/icons-vue';
 import DescTitle from '@/components/DescTitle.vue';
 import { generateAudioFile, playAudioOnIhost, uploadAudioFile as uploadAudio, SERVER_PORT } from '@/api';
 import i18n from '@/i18n';
@@ -284,27 +281,40 @@ const stopPlayAudio = () => {
 // MP3 Upload functionality
 const selectedFile = ref<File | null>(null);
 const uploadLoading = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
 
-const handleBeforeUpload = (file: File) => {
-    const isAudio = file.type === 'audio/mpeg' || file.type === 'audio/mp3' || file.type === 'audio/wav' || file.type === 'audio/x-wav';
+const selectFile = () => {
+    fileInput.value?.click();
+};
+
+const handleFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    if (!file) {
+        return;
+    }
+
+    const isAudio = file.type === 'audio/mpeg' || file.type === 'audio/mp3' || file.type === 'audio/wav' || file.type === 'audio/x-wav' || file.name.endsWith('.mp3') || file.name.endsWith('.wav');
     const isLt10M = file.size / 1024 / 1024 < 10;
 
     if (!isAudio) {
-        message.error('You can only upload MP3/WAV audio files!');
-        return false;
+        message.error('Sadece MP3/WAV ses dosyaları yükleyebilirsiniz!');
+        target.value = '';
+        return;
     }
     if (!isLt10M) {
-        message.error('Audio file must be smaller than 10MB!');
-        return false;
+        message.error('Ses dosyası 10MB\'dan küçük olmalıdır!');
+        target.value = '';
+        return;
     }
 
     selectedFile.value = file;
-    return false; // Prevent auto upload
 };
 
 const uploadAudioFile = async () => {
     if (!selectedFile.value) {
-        message.error('Please select an audio file first!');
+        message.error('Lütfen önce bir ses dosyası seçin!');
         return;
     }
 
@@ -316,16 +326,19 @@ const uploadAudioFile = async () => {
         });
 
         if (res.data.error === 0) {
-            message.success('Audio file uploaded successfully!');
+            message.success('Ses dosyası başarıyla yüklendi!');
             selectedFile.value = null;
+            if (fileInput.value) {
+                fileInput.value.value = '';
+            }
             // Optionally, trigger a refresh of the audio list
             // You might want to emit an event here to refresh the list in TabList
         } else {
-            message.error(res.data.msg || 'Upload failed!');
+            message.error(res.data.msg || 'Yükleme başarısız!');
         }
     } catch (err) {
         console.error(err);
-        message.error('Upload failed!');
+        message.error('Yükleme başarısız!');
     } finally {
         uploadLoading.value = false;
     }
