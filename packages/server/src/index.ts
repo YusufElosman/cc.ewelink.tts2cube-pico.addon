@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises';
 import process from 'node:process';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
 import express from 'express';
 import schedule from 'node-schedule';
 import log from './middlewares/log';
@@ -58,16 +57,17 @@ server.use('/_audio-cache', express.static(getAudioCacheFilesDir()));
 
 server.use(apiv1);
 
-server.listen(SERVER_LISTEN_PORT, SERVER_LISTEN_HOST, () => {
+server.listen(SERVER_LISTEN_PORT, SERVER_LISTEN_HOST, async () => {
     logger.info(`Server listen at port ${SERVER_LISTEN_PORT}`);
 
     // Init audio files dir
     const audioDir = getAudioFilesDir();
-    execSync(`mkdir -p ${audioDir}`);
+    await fs.mkdir(audioDir, { recursive: true });
 
     // Init audio cache files dir
     const audioCacheDir = getAudioCacheFilesDir();
-    execSync(`rm -rf ${audioCacheDir} && mkdir ${audioCacheDir}`);
+    await fs.rm(audioCacheDir, { recursive: true, force: true });
+    await fs.mkdir(audioCacheDir, { recursive: true });
 
     // Start remove audio cache files schedule
     schedule.scheduleJob('0 0 * * * *', async () => {
@@ -84,7 +84,10 @@ server.listen(SERVER_LISTEN_PORT, SERVER_LISTEN_HOST, () => {
                 }
             }
 
-            execSync(`rm -f ${removeList.join(' ')}`);
+            // Remove old files using Node.js fs instead of shell commands
+            for (const file of removeList) {
+                await fs.unlink(file).catch(() => {});
+            }
         } catch (err: any) {
             logger.error(`(schedule) error: ${err.message}`);
         }
