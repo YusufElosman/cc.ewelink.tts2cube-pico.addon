@@ -33,7 +33,10 @@ const enUS = {
     'italian_italy': 'Italian (Italy)',
     'done': 'Done',
     'cancel': 'Cancel',
-    'play_failed': 'Play failed'
+    'play_failed': 'Play failed',
+    'upload_audio_file': 'Upload Audio File (MP3/WAV)',
+    'select_audio_file': 'Select Audio File',
+    'upload': 'Upload'
 };
 
 export default enUS;

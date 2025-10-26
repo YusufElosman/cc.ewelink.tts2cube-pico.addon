@@ -33,7 +33,10 @@ const zhCN = {
     'italian_italy': '意大利语',
     'done': '确认',
     'cancel': '取消',
-    'play_failed': '音频无法播放'
+    'play_failed': '音频无法播放',
+    'upload_audio_file': '上传音频文件 (MP3/WAV)',
+    'select_audio_file': '选择音频文件',
+    'upload': '上传'
 };
 
 export default zhCN;
