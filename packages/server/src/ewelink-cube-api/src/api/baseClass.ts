@@ -17,7 +17,7 @@ export default abstract class baseClass {
 	private ip: string = ''
 	private at: string = 'fcb79458-b3a2-4255-b2ca-5fef83dae38d'
 	private debug: boolean = false
-	interval: NodeJS.Timer | null = null
+	interval: NodeJS.Timeout | null = null
 	timeout: NodeJS.Timeout | null = null
 	time = new Date().getTime()
 
