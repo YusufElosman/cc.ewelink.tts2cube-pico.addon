@@ -16,7 +16,7 @@ class ServerSendStream {
     public connectionId: string;
     private retryInterval: number;
     // public eventStream: PassThrough;
-    private heartbeat: NodeJS.Timer | null;
+    private heartbeat: NodeJS.Timeout | null;
     private req: Request;
     private res: Response;
 
