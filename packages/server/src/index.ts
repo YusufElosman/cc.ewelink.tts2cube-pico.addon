@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import process from 'node:process';
 import path from 'node:path';
 import express from 'express';
+import cors from 'cors';
 import schedule from 'node-schedule';
 import log from './middlewares/log';
 import auth from './middlewares/auth';
@@ -36,6 +37,13 @@ initCubeApi();
 initAudioStore();
 
 const server = express();
+
+// Enable CORS for development (allow requests from web dev server)
+server.use(cors({
+    origin: true,
+    credentials: true
+}));
+
 server.use(express.json());
 
 // Enable log middleware.
