@@ -23,6 +23,7 @@ const audioStore = new Keyv({
  * @param text audio text
  * @param config audio config
  * @param createAt audio created timestamp
+ * @param source audio source (tts or uploaded)
  */
 export type AudioItem = {
     id: string;
@@ -31,6 +32,7 @@ export type AudioItem = {
     config: string;
     createdAt: number;
     label?: string;
+    source?: 'tts' | 'uploaded';
 };
 
 export async function initAudioStore() {

@@ -91,3 +91,27 @@ export async function playAudioOnIhost(params: { audioUrl: string }) {
         data: params
     });
 }
+
+/**
+ * 上传音频文件 (MP3/WAV)
+ *
+ * @param params.file 音频文件
+ * @param params.label 音频文件标签
+ */
+export async function uploadAudioFile(params: { file: File; label?: string; }) {
+    const url = '/audio/upload';
+    const formData = new FormData();
+    formData.append('audioFile', params.file);
+    if (params.label) {
+        formData.append('label', params.label);
+    }
+    return await axios({
+        method: 'POST',
+        baseURL: API_BASEURL,
+        url,
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+}

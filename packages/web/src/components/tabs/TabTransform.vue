@@ -2,6 +2,39 @@
 <template>
     <div class="tab-transform">
         <DescTitle :header="i18n.global.t('speech_synthesis')" :description="i18n.global.t('enter_some_text_and_convert_it_to_speech')" />
+
+        <!-- MP3 上传部分 -->
+        <div class="upload-section">
+            <div class="upload-header">
+                <h3>{{ $t('upload_audio_file') || 'Upload Audio File (MP3/WAV)' }}</h3>
+            </div>
+            <div class="upload-content">
+                <a-upload
+                    :before-upload="handleBeforeUpload"
+                    :show-upload-list="false"
+                    accept=".mp3,.wav"
+                >
+                    <a-button type="default">
+                        <template #icon>
+                            <UploadOutlined />
+                        </template>
+                        {{ $t('select_audio_file') || 'Select Audio File' }}
+                    </a-button>
+                </a-upload>
+                <span v-if="selectedFile" class="file-name">{{ selectedFile.name }}</span>
+                <a-button
+                    v-if="selectedFile"
+                    type="primary"
+                    @click="uploadAudioFile"
+                    :loading="uploadLoading"
+                    class="upload-btn"
+                >
+                    {{ $t('upload') || 'Upload' }}
+                </a-button>
+            </div>
+        </div>
+
+        <a-divider />
         <div class="content">
             <div class="content-item flex flex-center">
                 <p class="title">{{ $t('language') }}</p>
@@ -96,8 +129,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
+import { UploadOutlined } from '@ant-design/icons-vue';
 import DescTitle from '@/components/DescTitle.vue';
-import { generateAudioFile, playAudioOnIhost, SERVER_PORT } from '@/api';
+import { generateAudioFile, playAudioOnIhost, uploadAudioFile as uploadAudio, SERVER_PORT } from '@/api';
 import i18n from '@/i18n';
 
 const BTN_TYPE_INIT = 0;        /* 按钮类型：初始 */
@@ -246,9 +280,92 @@ const stopPlayAudio = () => {
     audioPlayer.value.pause();
     btnType.value = BTN_TYPE_INIT;
 };
+
+// MP3 Upload functionality
+const selectedFile = ref<File | null>(null);
+const uploadLoading = ref(false);
+
+const handleBeforeUpload = (file: File) => {
+    const isAudio = file.type === 'audio/mpeg' || file.type === 'audio/mp3' || file.type === 'audio/wav' || file.type === 'audio/x-wav';
+    const isLt10M = file.size / 1024 / 1024 < 10;
+
+    if (!isAudio) {
+        message.error('You can only upload MP3/WAV audio files!');
+        return false;
+    }
+    if (!isLt10M) {
+        message.error('Audio file must be smaller than 10MB!');
+        return false;
+    }
+
+    selectedFile.value = file;
+    return false; // Prevent auto upload
+};
+
+const uploadAudioFile = async () => {
+    if (!selectedFile.value) {
+        message.error('Please select an audio file first!');
+        return;
+    }
+
+    uploadLoading.value = true;
+    try {
+        const res = await uploadAudio({
+            file: selectedFile.value,
+            label: selectedFile.value.name
+        });
+
+        if (res.data.error === 0) {
+            message.success('Audio file uploaded successfully!');
+            selectedFile.value = null;
+            // Optionally, trigger a refresh of the audio list
+            // You might want to emit an event here to refresh the list in TabList
+        } else {
+            message.error(res.data.msg || 'Upload failed!');
+        }
+    } catch (err) {
+        console.error(err);
+        message.error('Upload failed!');
+    } finally {
+        uploadLoading.value = false;
+    }
+};
 </script>
 
 <style lang="scss" scoped>
+.upload-section {
+    padding: 15px;
+    margin-bottom: 20px;
+
+    .upload-header {
+        h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #333;
+        }
+    }
+
+    .upload-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .file-name {
+            color: #666;
+            font-size: 14px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .upload-btn {
+            margin-left: 8px;
+        }
+    }
+}
+
 .content {
     padding: 0 15px;
     .content-item {

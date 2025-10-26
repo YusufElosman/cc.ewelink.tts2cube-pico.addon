@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import express from 'express';
+import multer from 'multer';
 import { v4 as uuid } from 'uuid';
 import _ from 'lodash';
 import logger from '../logger';
@@ -45,6 +46,38 @@ type ApiGetAudioListItem = {
 };
 
 const apiv1 = express.Router();
+
+// Configure multer for MP3 file uploads
+const storage = multer.diskStorage({
+    destination: async (req, file, cb) => {
+        const dirname = getAudioFilesDir();
+        cb(null, dirname);
+    },
+    filename: (req, file, cb) => {
+        const now = Date.now();
+        const ext = path.extname(file.originalname);
+        cb(null, `${now}${ext}`);
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        // Accept mp3, wav, and other audio files
+        const allowedMimes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav'];
+        const ext = path.extname(file.originalname).toLowerCase();
+        const allowedExts = ['.mp3', '.wav'];
+
+        if (allowedMimes.includes(file.mimetype) || allowedExts.includes(ext)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only audio files (MP3, WAV) are allowed'));
+        }
+    },
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB limit
+    }
+});
 
 // Get server information
 apiv1.get('/api/v1/get-server-info', async (req, res) => {
@@ -385,7 +418,8 @@ apiv1.post('/api/v1/ihost/callback', async (req, res) => {
                 filename: audioFilename,
                 text: reqTtsText.trim(),
                 config: reqTtsLang,
-                createdAt: now
+                createdAt: now,
+                source: 'tts' as const
             };
             await addAudioRecord(record);
 
@@ -609,7 +643,8 @@ apiv1.post('/api/v1/audio', async (req, res) => {
                 filename: audioFilename,
                 text: audioInputText.trim(),
                 config: audioLanguage.trim(),
-                createdAt: now
+                createdAt: now,
+                source: 'tts' as const
             };
             await addAudioRecord(audioRecord);
         }
@@ -622,6 +657,51 @@ apiv1.post('/api/v1/audio', async (req, res) => {
         logger.error(`${logType} ${err.name}: ${err.message}`);
         result.error = ERR_SERVER_INTERNAL;
         result.msg = 'Server error';
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
+    }
+});
+
+// Upload MP3/audio file
+apiv1.post('/api/v1/audio/upload', upload.single('audioFile'), async (req, res) => {
+    const result = {
+        error: 0,
+        msg: 'Success',
+        data: {}
+    };
+    const logType = '(apiv1.uploadAudioFile)';
+
+    try {
+        if (!req.file) {
+            result.error = ERR_SERVER_INTERNAL;
+            result.msg = 'No file uploaded';
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
+        }
+
+        const audioLabel = _.get(req, 'body.label', req.file.originalname);
+        const now = Date.now();
+
+        // Save audio record
+        const audioRecord = {
+            id: uuid(),
+            filename: req.file.filename,
+            text: audioLabel, // Use label as text for uploaded files
+            config: 'uploaded', // Mark as uploaded file
+            createdAt: now,
+            label: audioLabel,
+            source: 'uploaded' as const
+        };
+        await addAudioRecord(audioRecord);
+
+        _.set(result, 'data.downloadUrl', `_audio/${req.file.filename}`);
+        _.set(result, 'data.filename', req.file.filename);
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
+    } catch (err: any) {
+        logger.error(`${logType} ${err.name}: ${err.message}`);
+        result.error = ERR_SERVER_INTERNAL;
+        result.msg = err.message || 'Server error';
         logger.info(`${logType} Result: ${JSON.stringify(result)}`);
         return res.send(result);
     }
