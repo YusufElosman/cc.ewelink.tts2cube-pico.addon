@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  tts2cube-pico:
+    image: your-dockerhub-username/tts2cube-pico:latest
+    container_name: tts2cube-pico
+    restart: unless-stopped
+
+    # Network configuration
+    network_mode: bridge
+    ports:
+      - "8323:8323"
+
+    # Environment variables
+    environment:
+      - ENABLE_MIDDLEWARE_LOG=1
+      - ENABLE_MIDDLEWARE_AUTH=1
+      - ENABLE_PRINT_BUILDINFO=1
+      - CONFIG_CUBE_HOSTNAME=ihost
+      - CONFIG_AUDIO_DATA_PATH=/data
+      - CONFIG_TOKEN_DATA_PATH=/data
+      - LOG_LEVEL=info
+      - APP_NAME=TTS2CUBE-Pico
+
+    # Volume mounts
+    volumes:
+      # Named volume for persistent data
+      - tts2cube-data:/data
+
+      # Alternative: Bind mount to specific host path
+      # - ./data:/data
+
+      # For iHost users: Use named volumes
+      # - tts2cube-audio:/data/audio
+      # - tts2cube-cache:/data/audio-cache
+      # - tts2cube-config:/data
+
+# Define named volumes
+volumes:
+  tts2cube-data:
+    driver: local
+    # Optional: specify driver options for iHost
+    # driver_opts:
+    #   type: none
+    #   device: /path/on/ihost
+    #   o: bind
