@@ -92,8 +92,57 @@ docker-compose down
 
 ## Build
 
+### Build for Development
+
 Run the following command to build this addon.
 
-```
+```bash
 ./scripts/build.sh
 ```
+
+### Build and Publish Docker Image
+
+#### Linux/macOS
+
+```bash
+cd docker
+./publish.sh
+```
+
+#### Windows
+
+**Option 1: PowerShell (Recommended)**
+
+```powershell
+cd docker
+.\publish.ps1
+```
+
+**Option 2: Command Prompt (Batch)**
+
+```cmd
+cd docker
+publish.bat
+```
+
+The script will:
+1. Read version from `version` file
+2. Prompt for Docker image name (e.g., `yourusername/tts2cube-pico`)
+3. Build two images:
+   - `yourusername/tts2cube-pico:latest`
+   - `yourusername/tts2cube-pico:v1.0.0` (version from file)
+4. Login to Docker Hub
+5. Push both images
+6. Logout from Docker Hub
+
+**Requirements:**
+- Docker Desktop installed and running
+- Docker Hub account
+- Docker buildx enabled (for ARM platform support)
+
+**Note for Windows users:**
+- If PowerShell execution policy error occurs, run:
+  ```powershell
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
+- Make sure Docker Desktop is running before executing the script

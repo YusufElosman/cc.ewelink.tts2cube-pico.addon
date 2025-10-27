@@ -286,6 +286,84 @@ To restore:
 1. Upload the zip file to FileBrowser
 2. Extract in the `/srv/audio/` directory
 
+## Building and Publishing Your Own Image
+
+If you want to build and publish your own Docker image (for custom modifications):
+
+### Prerequisites
+
+- Docker Desktop installed and running
+- Docker Hub account
+- Git repository cloned
+
+### Build Process
+
+#### On Windows
+
+**Option 1: PowerShell (Recommended)**
+
+```powershell
+cd docker
+.\publish.ps1
+```
+
+**Option 2: Command Prompt**
+
+```cmd
+cd docker
+publish.bat
+```
+
+#### On Linux/macOS
+
+```bash
+cd docker
+./publish.sh
+```
+
+### Publishing Steps
+
+1. **Script will prompt for:**
+   - Docker image name (e.g., `yourusername/tts2cube-pico`)
+   - Docker Hub username
+   - Docker Hub password
+
+2. **Script will automatically:**
+   - Build image for ARM platform (iHost compatible)
+   - Tag with version from `version` file
+   - Login to Docker Hub
+   - Push both `latest` and versioned tags
+   - Logout from Docker Hub
+
+3. **After publishing:**
+   - Your image will be available on Docker Hub
+   - Install on iHost using your image name
+
+### Troubleshooting Build Issues
+
+**Windows PowerShell: Execution Policy Error**
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Docker Build Platform Error**
+
+Make sure Docker Desktop has buildx enabled:
+
+```bash
+docker buildx version
+```
+
+If not available, update Docker Desktop to latest version.
+
+**ARM Platform Build on Windows**
+
+Docker Desktop for Windows supports ARM builds via QEMU emulation. Make sure:
+- Docker Desktop is up to date
+- Virtualization is enabled in BIOS
+- WSL2 backend is enabled (Settings → General → Use WSL2)
+
 ## Support
 
 For issues or questions:
