@@ -6,31 +6,28 @@ TTS2CUBE-Pico is a text-to-speech service provided by Pico, which supports offli
 
 ### Quick Start
 
-When running this add-on on iHost, you need to configure volumes to persist your audio files and settings.
+This add-on automatically requests volume configuration when you run it on iHost.
 
-#### Step 1: Create Volume (iHost Web Interface)
+#### Step 1: Install and Run Add-on
 
-1. Open **iHost Web Interface** → **Docker** → **Volumes**
-2. Click **"Create Volume"**
-3. Volume name: `tts2cube-data` (or any name you prefer)
-4. Click **Create**
+1. In **iHost**, find and install **TTS2CUBE-Pico** add-on from Docker Hub
+2. Click **"RUN"** - iHost will automatically prompt you to configure volumes
 
-#### Step 2: Configure Add-on
+#### Step 2: Configure Volume (Automatic Prompt)
 
-1. In iHost, find **TTS2CUBE-Pico** add-on
-2. Before running, click **"Configure"** or **Settings icon**
-3. Go to **Volumes** section
-4. Click **"Add Volume"** and configure:
-   ```
-   Volume Name: tts2cube-data
-   Container Path: /data
-   ```
-5. Click **Save**
+When you click "RUN", iHost will show volume configuration:
 
-#### Step 3: Run Add-on
+1. **Volume for `/data`** will be requested automatically
+2. You can either:
+   - **Create new volume:** Enter a name like `tts2cube-data`
+   - **Use existing volume:** Select from dropdown
+3. Click **Save** and **Run**
 
-1. Click **"RUN"** to start the add-on
-2. Your audio files will now be persisted in the volume
+#### Step 3: Verify
+
+1. Add-on will start with persistent volume
+2. Audio files will be saved and persist across restarts
+3. Access files via FileBrowser (see below)
 
 ### Volume Paths
 

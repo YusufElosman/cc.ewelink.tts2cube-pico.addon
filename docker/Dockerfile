@@ -16,4 +16,8 @@ RUN apk add picotts --repository=http://dl-cdn.alpinelinux.org/alpine/edge/commu
 
 COPY . .
 
+# Declare volume for persistent data
+# This will prompt iHost to configure volumes when running the add-on
+VOLUME ["/data"]
+
 CMD ["node", "server/index.js"]

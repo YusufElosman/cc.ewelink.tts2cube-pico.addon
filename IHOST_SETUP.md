@@ -23,7 +23,15 @@ This guide provides detailed instructions for setting up TTS2CUBE-Pico on your i
 
 Volumes ensure that your audio files, settings, and tokens persist even if the add-on is restarted or updated.
 
-### Creating a Volume
+### Automatic Volume Configuration (Recommended)
+
+**Starting from this version, TTS2CUBE-Pico automatically prompts for volume configuration!**
+
+When you click **"RUN"** in iHost, the system will automatically ask you to configure the `/data` volume. You don't need to manually create volumes beforehand.
+
+### Manual Volume Creation (Optional)
+
+If you prefer to create volumes manually before running the add-on:
 
 1. **Access iHost Web Interface**
    - Open browser and navigate to `http://ihost.local` or your iHost IP address
@@ -63,24 +71,23 @@ tts2cube-data/
    - Search for `tts2cube-pico` in Docker Hub
    - Or enter the full image name if provided by the developer
 
-3. **Configure Before Running**
-   - Click the **Settings** icon (⚙️) before running
-   - **DO NOT** click "RUN" yet!
+3. **Click "RUN"**
+   - Click the **"RUN"** button
+   - iHost will **automatically show volume configuration dialog**
 
-4. **Configure Network**
+4. **Configure Volume (Automatic Prompt)**
+   - iHost will detect the `/data` volume requirement
+   - You'll see a volume configuration prompt:
+     - **Option 1 - Create new volume:**
+       - Enter name: `tts2cube-data`
+     - **Option 2 - Use existing volume:**
+       - Select from dropdown if you already have one
+
+5. **Configure Network (if prompted)**
    - Network Mode: `bridge`
    - Port Mapping: `8323:8323`
 
-5. **Configure Volumes**
-   - Click **"Add Volume"**
-   - Fill in:
-     ```
-     Volume Name: tts2cube-data
-     Container Path: /data
-     ```
-   - Click **Save**
-
-6. **Configure Environment Variables** (Optional)
+6. **Configure Environment Variables (Optional)**
    - Most variables have sensible defaults
    - You can customize:
      ```
@@ -88,9 +95,11 @@ tts2cube-data/
      ENABLE_MIDDLEWARE_LOG=1
      ```
 
-7. **Run the Add-on**
-   - Click **"RUN"** to start
+7. **Finalize and Run**
+   - Click **"RUN"** or **"Save"** to start
    - Check logs for successful startup
+
+**Note:** With the VOLUME directive in Dockerfile, iHost automatically prompts for volume configuration. You no longer need to manually add volumes before running!
 
 ### Method 2: Manual Docker Command
 
